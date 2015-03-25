@@ -1,6 +1,7 @@
 package jog;
 
 import java.awt.Canvas;
+import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.DisplayMode;
 import java.awt.GraphicsDevice;
@@ -169,6 +170,15 @@ public abstract class Window {
 	public static void setIcon(String filename) {
 		ImageIcon img = new ImageIcon(Filesystem.getPath(filename));
 		window.setIconImage(img.getImage());
+	}
+	
+	public static void setMouseCursor() {
+		setMouseCursor(Cursor.DEFAULT_CURSOR); 
+	}
+	
+	public static void setMouseCursor(int cursorType) {
+		Cursor cursor = Cursor.getPredefinedCursor(cursorType);
+		window.setCursor(cursor);
 	}
 
 }
