@@ -7,26 +7,26 @@ import run.Main;
 public class Title extends Scene implements jog.Network.ClientEventHandler {
 	
 	private static jog.Image background = new jog.Image("gfx/titlebackground.png");
+	private gui.WindowTitle window;
 
-	private jog.Network.Client client;
-	
 	public Title(Main main) {
 		super(main);
 	}
 
 	@Override
 	public void start() {
-		
+		window = new gui.WindowTitle(32, 32, 128, 128, 128, 64, 256, 128);
 	}
 
 	@Override
 	public void update(double dt) {
-		
+		window.update();
 	}
 
 	@Override
 	public void draw() {
 		jog.Graphics.draw(background, 0, 0);
+		window.draw();
 	}
 
 	@Override
@@ -35,10 +35,14 @@ public class Title extends Scene implements jog.Network.ClientEventHandler {
 	}
 
 	@Override
-	public void mousePressed(int mouseX, int mouseY, int mouseKey) {}
+	public void mousePressed(int mouseX, int mouseY, int mouseKey) {
+		window.mousePressed(mouseX, mouseY, mouseKey);
+	}
 
 	@Override
-	public void mouseReleased(int mouseX, int mouseY, int mouseKey) {}
+	public void mouseReleased(int mouseX, int mouseY, int mouseKey) {
+		window.mouseReleased(mouseX, mouseY, mouseKey);
+	}
 
 	@Override
 	public void keyPressed(int key) {}
@@ -49,8 +53,7 @@ public class Title extends Scene implements jog.Network.ClientEventHandler {
 			main.setScene(new Setup(main));
 		} else if (key == KeyEvent.VK_2) {
 			scn.Game nextScene = new scn.Game(main);
-			client = jog.Network.newClient("", 1337, nextScene);
-			nextScene.setClient(client);
+			nextScene.setClient(jog.Network.newClient("", 1337, nextScene));
 			main.setScene(nextScene);
 		}
 	}
