@@ -42,8 +42,8 @@ public class Event {
 		public void keyReleased(int key);
 		public void mouseMoved(int x, int y);
 		public void mouseScrolled(int x, int y, int scroll);
-		public void mousePressed(int key, int x, int y);
-		public void mouseReleased(int key, int x, int y);
+		public void mousePressed(int x, int y, int key);
+		public void mouseReleased(int x, int y, int key);
 		public boolean quit();
 	}
 	

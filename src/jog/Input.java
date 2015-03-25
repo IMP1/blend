@@ -9,6 +9,17 @@ import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
 public abstract class Input {
+//	
+//	public enum MouseKey {
+//		L(MouseEvent.BUTTON1);
+//		public boolean is() {
+//			return 
+//		}
+//		private final int key;
+//		private MouseKey(int key) {
+//			this.key = key;
+//		}
+//	}
 
 	private static class ListenerKeyboard implements KeyListener {
 		
@@ -47,7 +58,7 @@ public abstract class Input {
 			int button = e.getButton();
 			int x = e.getX();
 			int y = e.getY();
-			jog.Event.push(Event.EventType.MOUSE_PRESSED, button, x, y);
+			jog.Event.push(Event.EventType.MOUSE_PRESSED, x, y, button);
 		}
 
 		@Override
@@ -56,7 +67,7 @@ public abstract class Input {
 			int button = e.getButton();
 			int x = e.getX();
 			int y = e.getY();
-			jog.Event.push(Event.EventType.MOUSE_RELEASED, button, x, y);
+			jog.Event.push(Event.EventType.MOUSE_RELEASED, x, y, button);
 		}
 		
 		@Override
