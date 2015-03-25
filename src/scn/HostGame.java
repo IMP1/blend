@@ -10,9 +10,7 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 	
 	private jog.Network.Server server;
 	private int clientsReady = 0;
-	private int populationCount;
 	private int playerCount;
-	private Color[] playerColours;
 	private int[] playerIDs;
 	private java.util.ArrayList<Person> serverPeople;
 
@@ -34,8 +32,6 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 		//------------------------------
 		// These will passed from Setup as parameters TODO
 		this.playerCount = playerCount;
-		this.populationCount = populationCount;
-		this.playerColours = playerColours;
 		//------------------------------
 		server.broadcast("There are: " + playerCount * populationCount);
 		serverPeople = new java.util.ArrayList<Person>();
