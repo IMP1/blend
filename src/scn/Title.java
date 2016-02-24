@@ -2,15 +2,13 @@ package scn;
 
 import java.awt.event.KeyEvent;
 
-import run.Main;
-
 public class Title extends Scene implements jog.Network.ClientEventHandler {
 	
 	private static jog.Image background = new jog.Image("gfx/titlebackground.png");
 	private gui.WindowTitle window;
 
-	public Title(Main main) {
-		super(main);
+	public Title() {
+		super();
 	}
 
 	@Override
@@ -30,11 +28,6 @@ public class Title extends Scene implements jog.Network.ClientEventHandler {
 	}
 
 	@Override
-	public void close() {
-		
-	}
-
-	@Override
 	public void mousePressed(int mouseX, int mouseY, int mouseKey) {
 		window.mousePressed(mouseX, mouseY, mouseKey);
 	}
@@ -45,57 +38,18 @@ public class Title extends Scene implements jog.Network.ClientEventHandler {
 	}
 
 	@Override
-	public void keyPressed(int key) {}
-
-	@Override
 	public void keyReleased(int key) {
 		if (key == KeyEvent.VK_1){
-			main.setScene(new Setup(main));
+			SceneManager.setScene(new scn.Setup());
 		} else if (key == KeyEvent.VK_2) {
-			scn.Game nextScene = new scn.Game(main);
+			scn.Game nextScene = new scn.Game();
 			nextScene.setClient(jog.Network.newClient("", 1337, nextScene));
-			main.setScene(nextScene);
+			SceneManager.setScene(nextScene);
 		}
 	}
 
 	@Override
 	public void onMessage(String message) {
-		
-	}
-
-	@Override
-	public void focus(boolean gained) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseFocus(boolean gained) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resize(int oldWidth, int oldHeight) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseMoved(int x, int y) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean quit() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void mouseScrolled(int x, int y, int scroll) {
-		// TODO Auto-generated method stub
 		
 	}
 
