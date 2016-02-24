@@ -4,35 +4,49 @@ import java.awt.Color;
 
 import cls.Person;
 
-import run.Main;
-
 public class HostGame extends Game implements jog.Network.ServerEventHandler {
+	
+	public final static double MESSAGE_RATE = 0.01;
 	
 	private jog.Network.Server server;
 	private int clientsReady = 0;
 	private int playerCount;
 	private int[] playerIDs;
+	private java.util.HashMap<String, Person> clientPersons;
 	private java.util.ArrayList<Person> serverPeople;
+	private boolean moved = false;
+	private double messageTimer = 0;
 
-	public HostGame(Main main) {
-		super(main);
+	public HostGame() {
+		super();
 	}
 	
 	@Override
 	public void update(double dt) {
 		super.update(dt);
 		updateNPCs(dt);
+		messageTimer += dt;
+		if (messageTimer >= MESSAGE_RATE) {
+			messageTimer -= MESSAGE_RATE;
+			if (moved) {
+				broadcastPositions();
+			}
+		}
 	}
 	
 	private void updateNPCs(double dt) {
-		
+		// moved = true;
+	}
+	
+	private void broadcastPositions() {
+		for (Person p : serverPeople) {
+			server.broadcast("" + p.id + " is at: (" + p.getX() + ", " + p.getY() + ")");
+		}
+		moved = false;
 	}
 	
 	public void setupGame(int playerCount, int populationCount, Color[] playerColours, int mapWidth, int mapHeight) {
-		//------------------------------
-		// These will passed from Setup as parameters TODO
 		this.playerCount = playerCount;
-		//------------------------------
 		server.broadcast("There are: " + playerCount * populationCount);
 		serverPeople = new java.util.ArrayList<Person>();
 		for (int playerType = 0; playerType < playerCount; playerType ++) {
@@ -46,13 +60,16 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 				serverPeople.add(new Person(id, x, y, c));
 				server.broadcast("" + id + " is: (" + c.getRed() + ", " + c.getGreen() + ", " + c.getBlue() + ")");
 				server.broadcast("" + id + " is at: (" + x + ", " + y + ")");
+//				System.out.printf("%d: @(%d, %d) (%d, %d, %d)\n", id, x, y, c.getRed(), c.getGreen(), c.getBlue());
 			}
 		}
+		clientPersons = new java.util.HashMap<String, Person>();
 		playerIDs = new int[playerCount];
 		for (int i = 0; i < playerCount; i ++ ) {
 			int id = i * populationCount + (int)(Math.random() * populationCount);
 			server.send(server.getClients()[i], "You are: " + id);
 			playerIDs[i] = id;
+			clientPersons.put(server.getClients()[i], serverPeople.get(id));
 		}
 	}
 	
@@ -62,11 +79,22 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 
 	@Override
 	public void onMessage(String sender, String message) {
-		if (message.equals("ready!")) {
+		if (message.equals(READY_MESSAGE)) {
 			clientsReady += 1;
-			System.out.println("\t<server> " + clientsReady + " clients ready.");
+//			System.out.println("\t<server> " + clientsReady + " clients ready.");
 			if (clientsReady == playerCount) {
-				server.broadcast("begin");
+				server.broadcast(BEGIN_MESSAGE);
+			}
+		} else if (started) {
+			if (message.matches("<.+, .+>")) {
+				String x = message.split(", ")[0];
+				x = x.substring(1);
+				String y = message.split(", ")[1];
+				y = y.substring(0, y.length()-2);
+				double dx = Double.parseDouble(x);
+				double dy = Double.parseDouble(y);
+				clientPersons.get(sender).move(dx, dy);
+				moved = true;
 			}
 		}
 	}
@@ -82,3 +110,4 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 	}
 
 }
+

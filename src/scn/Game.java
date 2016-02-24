@@ -5,25 +5,27 @@ import java.awt.event.KeyEvent;
 
 import cls.Person;
 
-import run.Main;
-
 public class Game extends Scene implements jog.Network.ClientEventHandler {
 	
-	protected jog.Network.Client client; 
+	public final static String BEGIN_MESSAGE = "begin";
+	public final static String READY_MESSAGE = "ready!";
+	
+	protected jog.Network.Client network; 
 	protected java.util.ArrayList<Person> people;
 	protected int me = -1;
 	protected boolean started = false;
 	protected boolean ready = false;
 	protected boolean initialisedPopulation = false;
-	protected boolean identifiedPopulation = false;
+	protected int identifiedPopulation = 0;
+	protected int locatedPopulation = 0;
 	protected boolean identifiedMe = false;
 
-	public Game(Main main) {
-		super(main);
+	public Game() {
+		super();
 	}
 
 	public void setClient(jog.Network.Client c) {
-		client = c;
+		network = c;
 	}
 	
 	@Override
@@ -36,7 +38,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 		if (!started){
 			onSetupMessage(message);
 		} else {
-			
+			onGameMessage(message);
 		}
 	}
 	
@@ -60,7 +62,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 				int g = Integer.parseInt(colour.split(", ")[1]);
 				int b = Integer.parseInt(colour.split(", ")[2]);
 				people.get(id).setColour(r, g, b);
-				identifiedPopulation = true;
+				identifiedPopulation ++;
 			} else if (message.matches("\\d is at: .+")) {
 				int id = Integer.parseInt(message.split(" ")[0]);
 				String pos = message.split(": ")[1];
@@ -68,17 +70,27 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 				int x = Integer.parseInt(pos.split(", ")[0]);
 				int y = Integer.parseInt(pos.split(", ")[1]);
 				people.get(id).setPosition(x, y);
+				locatedPopulation ++;
 			}
-			if (initialisedPopulation && identifiedMe && identifiedPopulation) {
+			if (initialisedPopulation && identifiedMe && identifiedPopulation == people.size() && locatedPopulation == people.size()) {
 				ready = true;
-				System.out.println("\t<client> Letting the server know I'm ready...");
-				client.send("ready!");
+				network.send(READY_MESSAGE);
 			}
 		}
-		if (message.equals("begin")) {
+		if (message.equals(BEGIN_MESSAGE)) {
 			started = true;
 		}
-		
+	}
+	
+	protected void onGameMessage(String message) {
+		if (message.matches("\\d is at: .+")) {
+			int id = Integer.parseInt(message.split(" ")[0]);
+			String pos = message.split(": ")[1];
+			pos = pos.substring(1, pos.length() - 1); // Remove parentheses.
+			int x = Integer.parseInt(pos.split(", ")[0]);
+			int y = Integer.parseInt(pos.split(", ")[1]);
+			people.get(id).setPosition(x, y);
+		}
 	}
 
 	@Override
@@ -98,7 +110,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			dx += dt * Person.MOVE_SPEED;
 		}
 		if (dx != 0 || dy != 0) {
-			client.send("<" + dx + ", " + dy + ">");
+			network.send("<" + dx + ", " + dy + ">");
 		}
 		for (Person p : people) {
 			p.update(dt);
@@ -108,7 +120,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 	@Override
 	public void draw() {
 		if (!started) {
-			jog.Graphics.printCentred("Waiting for game to begin...", 0, 0, jog.Window.getWidth());
+			jog.Graphics.printCentred("Waiting for game to begin...", jog.Window.getWidth()/2, 0);
 		}
 		int y = 0;
 		for (Person p : people) {
@@ -117,65 +129,9 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			} else {
 				p.draw();
 			}
-			jog.Graphics.print("Person #" + y + " (" + p.getX() + ", " + p.getY() + ")", 0, y * 32);
+			jog.Graphics.print("Person #" + y + " (" + p.getX() + ", " + p.getY() + ")", 0, 32 + y * 24);
 			y ++;
 		}
-		if (identifiedMe && !started) {
-			
-		}
-	}
-
-	@Override
-	public void close() {
-		
-	}
-
-	@Override
-	public void mousePressed(int mouseX, int mouseY, int mouseKey) {}
-
-	@Override
-	public void mouseReleased(int mouseX, int mouseY, int mouseKey) {}
-
-	@Override
-	public void keyPressed(int key) {}
-
-	@Override
-	public void keyReleased(int key) {}
-
-	@Override
-	public void focus(boolean gained) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseFocus(boolean gained) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void resize(int oldWidth, int oldHeight) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void mouseMoved(int x, int y) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public boolean quit() {
-		// TODO Auto-generated method stub
-		return false;
-	}
-
-	@Override
-	public void mouseScrolled(int x, int y, int scroll) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
