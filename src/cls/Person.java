@@ -11,6 +11,7 @@ public class Person {
 	public static final jog.Image IMAGE = new jog.Image("gfx/person.png");
 	
 	public final int id;
+	private double realX, realY;
 	private int x, y;
 	private Color colour;
 	private double bobTimer;
@@ -19,6 +20,8 @@ public class Person {
 		this.id = id;
 		this.x = x;
 		this.y = y;
+		this.realX = x;
+		this.realY = y;
 		bobTimer = Math.random() * 2 * Math.PI;
 		setColour(colour);
 	}
@@ -39,9 +42,15 @@ public class Person {
 		setColour(new Color(r, g, b));
 	}
 
-	public void move(int dx, int dy) {
-		this.x += dx;
-		this.y += dy;
+	public void move(double dx, double dy) {
+		realX += dx;
+		realY += dy;
+		if ((int)realX != x) {
+			x = (int)realX;
+		}
+		if ((int)realY != y) {
+			y = (int)realY;
+		}
 	}
 	
 	public void update(double dt) {
