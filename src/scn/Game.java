@@ -2,6 +2,7 @@ package scn;
 
 import java.awt.Color;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
 
 import cls.Person;
 
@@ -10,19 +11,20 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 	public final static String BEGIN_MESSAGE = "begin";
 	public final static String READY_MESSAGE = "ready!";
 	
+	// Network Variables
 	protected jog.Network.Client network; 
-	protected java.util.ArrayList<Person> people;
-	protected int me = -1;
 	protected boolean started = false;
 	protected boolean ready = false;
 	protected boolean initialisedPopulation = false;
 	protected int identifiedPopulation = 0;
 	protected int locatedPopulation = 0;
 	protected boolean identifiedMe = false;
-
-	public Game() {
-		super();
-	}
+	
+	// Game Variables
+	protected java.util.ArrayList<Person> people;
+	protected int me = -1;
+	protected Person target;
+	protected lib.Camera camera;
 
 	public void setClient(jog.Network.Client c) {
 		network = c;
@@ -31,6 +33,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 	@Override
 	public void start() {
 		people = new java.util.ArrayList<Person>();
+		camera = new lib.Camera();
 	}
 
 	@Override
@@ -92,6 +95,31 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			people.get(id).setPosition(x, y);
 		}
 	}
+	
+	@Override
+	public void mousePressed(int mouseX, int mouseY, int mouseKey) {
+		if (mouseKey == MouseEvent.BUTTON1) {
+			double mx = camera.getWorldX(mouseX);
+			double my = camera.getWorldY(mouseY);
+			System.out.printf("Button pressed at (%f, %f).\n", mx, my);
+			Person p = getPersonAt(mx, my);
+			if (p != null && p.id != me) {
+				target = p;
+				System.out.printf("Target is now %d.\n", target.id);
+			}
+		}
+	}
+	
+	private Person getPersonAt(double x, double y) {
+		for (Person p : people) {
+			double dx = x - p.getX();
+			double dy = y - p.getY() - Person.IMAGE.getHeight() / 2;
+			if (Math.abs(dx) < Person.IMAGE.getWidth() / 1.5 && Math.abs(dy) < Person.IMAGE.getHeight() / 1.5) {
+				return p;
+			}
+		}
+		return null;
+	}
 
 	@Override
 	public void update(double dt) {
@@ -115,6 +143,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 		for (Person p : people) {
 			p.update(dt);
 		}
+		camera.centreOn(people.get(me).getX(), people.get(me).getY());
 	}
 
 	@Override
@@ -122,16 +151,20 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 		if (!started) {
 			jog.Graphics.printCentred("Waiting for game to begin...", jog.Window.getWidth()/2, 0);
 		}
+		camera.set();
 		int y = 0;
 		for (Person p : people) {
 			if (p.id == me) {
-				p.drawMe();
+				p.drawAsMe();
+			} else if (p.equals(target)) {
+				p.drawAsTarget();
 			} else {
 				p.draw();
 			}
 			jog.Graphics.print("Person #" + y + " (" + p.getX() + ", " + p.getY() + ")", 0, 32 + y * 24);
 			y ++;
 		}
+		camera.unset();
 	}
 
 }
