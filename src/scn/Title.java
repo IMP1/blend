@@ -40,11 +40,11 @@ public class Title extends Scene implements jog.Network.ClientEventHandler {
 	@Override
 	public void keyReleased(int key) {
 		if (key == KeyEvent.VK_1){
-			SceneManager.setScene(new scn.Setup());
+			SceneManager.changeScene(new scn.Setup());
 		} else if (key == KeyEvent.VK_2) {
 			scn.Game nextScene = new scn.Game();
 			nextScene.setClient(jog.Network.newClient("", 1337, nextScene));
-			SceneManager.setScene(nextScene);
+			SceneManager.changeScene(nextScene);
 		}
 	}
 
