@@ -2,7 +2,7 @@ package cls;
 
 import java.awt.Color;
 
-public class Person {
+public class Person implements lib.Object2D {
 	
 	public static final int MOVE_SPEED = 128;
 	public static final int BOB_HEIGHT = 4;
@@ -35,8 +35,8 @@ public class Person {
 		this.y = y;
 	}
 	
-	public int getX() { return x; }
-	public int getY() { return y; }
+	public int getX() { return x - IMAGE.getWidth() / 2; }
+	public int getY() { return y - IMAGE.getHeight(); }
 	
 	public void setColour(int r, int g, int b) {
 		setColour(new Color(r, g, b));
@@ -59,7 +59,16 @@ public class Person {
 	
 	private void drawImage() {
 		int bobY = (int)(Math.sin(bobTimer) * BOB_HEIGHT);
-		jog.Graphics.draw(IMAGE, x + IMAGE.getWidth() / 2, y + IMAGE.getWidth() + bobY);
+		
+		final int radius = 16;
+		jog.Graphics.arc(true, x, y + 8 + bobY - radius, radius, 0, -Math.PI);
+		jog.Graphics.rectangle(true, x - radius, y + 8 + bobY - radius, radius * 2, 8);
+		jog.Graphics.circle(true, x, y - 10 + bobY - radius, 8);
+//		jog.Graphics.draw(IMAGE, getX(), getY() + bobY);
+		Color c = jog.Graphics.getColour();
+		jog.Graphics.setColour(255, 0, 0);
+		jog.Graphics.circle(true, x, y, 4);
+		jog.Graphics.setColour(c);
 	}
 	
 	public void draw() {
@@ -67,7 +76,12 @@ public class Person {
 		drawImage();
 	}
 	
-	public void drawMe() {
+	public void drawAsMe() {
+		jog.Graphics.setColour(255, 255, 255);
+		drawImage();
+	}
+	
+	public void drawAsTarget() {
 		jog.Graphics.setColour(255, 167, 26);
 		drawImage();
 	}
