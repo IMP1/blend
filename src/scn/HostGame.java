@@ -86,7 +86,7 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 				server.broadcast(BEGIN_MESSAGE);
 			}
 		} else if (started) {
-			if (message.matches("<.+, .+>")) {
+			if (message.matches(MOVE_PATTERN)) {
 				String x = message.split(", ")[0];
 				x = x.substring(1);
 				String y = message.split(", ")[1];
@@ -96,7 +96,33 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 				clientPersons.get(sender).move(dx, dy);
 				moved = true;
 			}
+			if (message.matches(UNTARGET_PATTERN)) {
+				String id = message.substring(1, message.length() - 1);
+				int i = getClientID(Integer.parseInt(id));
+				if (i > -1) {
+					System.out.println("untargetting player " + i + " " + server.getClients()[i]);
+					server.send(server.getClients()[i], DECREMENT_TARGETS_MESSAGE);
+				}
+			}
+			if (message.matches(TARGET_PATTERN)) {
+				String id = message.substring(1, message.length() - 1);
+				int i = getClientID(Integer.parseInt(id));
+				if (i > -1) {
+					System.out.println("targetting player " + i + " " + server.getClients()[i]);
+					server.send(server.getClients()[i], INCREMENT_TARGETS_MESSAGE);
+				}
+			}
+			if (message.equals(ATTACK_MESSAGE)) {
+				System.out.println("pew pew");
+			}
 		}
+	}
+	
+	private int getClientID(int playerID) {
+		for (int i = 0; i < playerIDs.length; i ++) {
+			if (playerIDs[i] == playerID) return i;
+		}
+		return -1;
 	}
 
 	@Override
