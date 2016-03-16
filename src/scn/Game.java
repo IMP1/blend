@@ -10,6 +10,19 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 	
 	public final static String BEGIN_MESSAGE = "begin";
 	public final static String READY_MESSAGE = "ready!";
+	public final static String ATTACK_MESSAGE = "!";
+	public final static String INCREMENT_TARGETS_MESSAGE = "+";
+	public final static String DECREMENT_TARGETS_MESSAGE = "-";
+	
+	public final static String MOVE_PATTERN = "<.+, .+>";
+	public final static String MOVE_FORMAT = "<%f, %f>";
+	
+	public final static String TARGET_PATTERN = "\\[\\d+\\]";
+	public final static String TARGET_FORMAT  = "[%d]";
+	
+	public final static String UNTARGET_PATTERN = "\\-\\d+\\-";
+	public final static String UNTARGET_FORMAT  = "-%d-";
+	
 	
 	// Network Variables
 	protected jog.Network.Client network; 
@@ -22,9 +35,10 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 	
 	// Game Variables
 	protected java.util.ArrayList<Person> people;
+	protected lib.Camera camera;
 	protected int me = -1;
 	protected Person target;
-	protected lib.Camera camera;
+	protected int targetsOnMe;
 
 	public void setClient(jog.Network.Client c) {
 		network = c;
@@ -34,6 +48,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 	public void start() {
 		people = new java.util.ArrayList<Person>();
 		camera = new lib.Camera();
+		targetsOnMe = 0;
 	}
 
 	@Override
@@ -83,6 +98,16 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 		if (message.equals(BEGIN_MESSAGE)) {
 			started = true;
 		}
+		if (started) {
+			if (message.equals(INCREMENT_TARGETS_MESSAGE)) {
+				targetsOnMe ++;
+				System.out.println("One more targetting me :(");
+			}
+			if (message.equals(DECREMENT_TARGETS_MESSAGE)) {
+				targetsOnMe --;
+				System.out.println("One fewer targetting me :)");
+			}
+		}
 	}
 	
 	protected void onGameMessage(String message) {
@@ -95,21 +120,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			people.get(id).setPosition(x, y);
 		}
 	}
-	
-	@Override
-	public void mousePressed(int mouseX, int mouseY, int mouseKey) {
-		if (mouseKey == MouseEvent.BUTTON1) {
-			double mx = camera.getWorldX(mouseX);
-			double my = camera.getWorldY(mouseY);
-			System.out.printf("Button pressed at (%f, %f).\n", mx, my);
-			Person p = getPersonAt(mx, my);
-			if (p != null && p.id != me) {
-				target = p;
-				System.out.printf("Target is now %d.\n", target.id);
-			}
-		}
-	}
-	
+
 	private Person getPersonAt(double x, double y) {
 		for (Person p : people) {
 			double dx = x - p.getX();
@@ -121,6 +132,27 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 		return null;
 	}
 
+	@Override
+	public void mousePressed(int mouseX, int mouseY, int mouseKey) {
+		if (mouseKey == MouseEvent.BUTTON1) {
+			double mx = camera.getWorldX(mouseX);
+			double my = camera.getWorldY(mouseY);
+			Person p = getPersonAt(mx, my);
+			if (p != null && p.id != me) {
+				if (target != null) network.send(String.format(UNTARGET_FORMAT, target.id));
+				target = p;
+				network.send(String.format(TARGET_FORMAT, p.id));
+			}
+		}
+	}
+	
+	@Override
+	public void keyPressed(int key) {
+		if (key == KeyEvent.VK_SPACE) {
+			network.send(ATTACK_MESSAGE);
+		}
+	}
+	
 	@Override
 	public void update(double dt) {
 		if (!started) return;
@@ -138,7 +170,7 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			dx += dt * Person.MOVE_SPEED;
 		}
 		if (dx != 0 || dy != 0) {
-			network.send("<" + dx + ", " + dy + ">");
+			network.send(String.format(MOVE_FORMAT, dx, dy));
 		}
 		for (Person p : people) {
 			p.update(dt);
@@ -165,6 +197,9 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			y ++;
 		}
 		camera.unset();
+		for (int i = 0; i < targetsOnMe; i ++) {
+			jog.Graphics.circle(true, i * 32, 32, 12);
+		}
 	}
 
 }
