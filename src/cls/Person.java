@@ -8,6 +8,9 @@ public class Person implements lib.Object2D {
 	public static final int BOB_HEIGHT = 4;
 	public static final int BOB_SPEED = (int)(2 * Math.PI);
 
+	private final static int BODY_RADIUS = 16;
+	private final static int BODY_EXTRA_HEIGHT = 8;
+	private final static int HEAD_RADIUS = 8;
 	public static final jog.Image IMAGE = new jog.Image("gfx/person.png");
 	
 	public final int id;
@@ -57,14 +60,21 @@ public class Person implements lib.Object2D {
 		bobTimer += dt * BOB_SPEED;
 	}
 	
-	private void drawImage() {
+	private void drawBorder(int r, int g, int b) {
+		Color c = jog.Graphics.getColour();
+		jog.Graphics.setColour(r, g, b);
+		drawImage(BODY_RADIUS + 2, HEAD_RADIUS + 2, BODY_EXTRA_HEIGHT + 2, BODY_RADIUS + 2);
+		jog.Graphics.setColour(c);
+	}
+	
+	private void drawImage(final int bodyRadius, final int headRadius, final int bodyHeight, final int bodyWidth) {
 		int bobY = (int)(Math.sin(bobTimer) * BOB_HEIGHT);
 		
-		final int radius = 16;
-		jog.Graphics.arc(true, x, y + 8 + bobY - radius, radius, 0, -Math.PI);
-		jog.Graphics.rectangle(true, x - radius, y + 8 + bobY - radius, radius * 2, 8);
-		jog.Graphics.circle(true, x, y - 10 + bobY - radius, 8);
-//		jog.Graphics.draw(IMAGE, getX(), getY() + bobY);
+		jog.Graphics.arc(true, x, y + bobY - BODY_EXTRA_HEIGHT, bodyRadius, 0, -Math.PI);
+		jog.Graphics.rectangle(true, x - bodyWidth, y + bobY - BODY_EXTRA_HEIGHT, bodyRadius * 2, bodyHeight);
+		jog.Graphics.circle(true, x, y + bobY - HEAD_RADIUS - BODY_RADIUS - BODY_EXTRA_HEIGHT, headRadius);
+
+		// Debugging Positional Circle
 		Color c = jog.Graphics.getColour();
 		jog.Graphics.setColour(255, 0, 0);
 		jog.Graphics.circle(true, x, y, 4);
@@ -73,17 +83,17 @@ public class Person implements lib.Object2D {
 	
 	public void draw() {
 		jog.Graphics.setColour(colour);
-		drawImage();
+		drawImage(BODY_RADIUS, HEAD_RADIUS, BODY_EXTRA_HEIGHT, BODY_RADIUS);
 	}
 	
 	public void drawAsMe() {
-		jog.Graphics.setColour(255, 255, 255);
-		drawImage();
+		drawBorder(255, 255, 255);
+		draw();
 	}
 	
 	public void drawAsTarget() {
-		jog.Graphics.setColour(255, 167, 26);
-		drawImage();
+		drawBorder(255, 167, 26);
+		draw();
 	}
 	
 }
