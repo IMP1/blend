@@ -46,7 +46,7 @@ public class Setup extends Scene {
 			playerColours[2] = new Color(192, 192, 32);
 			int mapWidth = jog.Window.getWidth();
 			int mapHeight = jog.Window.getHeight();
-			nextScene.setupGame(server.getClients().length, 4, playerColours, mapWidth, mapHeight);
+			nextScene.setupGame(server.getClients().length, 7, playerColours, mapWidth, mapHeight);
 		}
 	}
 

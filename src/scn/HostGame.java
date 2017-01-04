@@ -60,6 +60,9 @@ public class HostGame extends Game implements jog.Network.ServerEventHandler {
 				serverPeople.add(new Person(id, x, y, c));
 				server.broadcast("" + id + " is: (" + c.getRed() + ", " + c.getGreen() + ", " + c.getBlue() + ")");
 				server.broadcast("" + id + " is at: (" + x + ", " + y + ")");
+				try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {}
 //				System.out.printf("%d: @(%d, %d) (%d, %d, %d)\n", id, x, y, c.getRed(), c.getGreen(), c.getBlue());
 			}
 		}
