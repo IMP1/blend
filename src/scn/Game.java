@@ -98,16 +98,6 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 		if (message.equals(BEGIN_MESSAGE)) {
 			started = true;
 		}
-		if (started) {
-			if (message.equals(INCREMENT_TARGETS_MESSAGE)) {
-				targetsOnMe ++;
-				System.out.println("One more targetting me :(");
-			}
-			if (message.equals(DECREMENT_TARGETS_MESSAGE)) {
-				targetsOnMe --;
-				System.out.println("One fewer targetting me :)");
-			}
-		}
 	}
 	
 	protected void onGameMessage(String message) {
@@ -119,6 +109,14 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			int y = Integer.parseInt(pos.split(", ")[1]);
 			people.get(id).setPosition(x, y);
 		}
+		if (message.equals(INCREMENT_TARGETS_MESSAGE)) {
+            targetsOnMe ++;
+            System.out.println("One more targetting me :(");
+        }
+        if (message.equals(DECREMENT_TARGETS_MESSAGE)) {
+            targetsOnMe --;
+            System.out.println("One fewer targetting me :)");
+        }
 	}
 
 	private Person getPersonAt(double x, double y) {
@@ -197,8 +195,9 @@ public class Game extends Scene implements jog.Network.ClientEventHandler {
 			y ++;
 		}
 		camera.unset();
+		jog.Graphics.setColour(128, 0, 0);
 		for (int i = 0; i < targetsOnMe; i ++) {
-			jog.Graphics.circle(true, i * 32, 32, 12);
+			jog.Graphics.circle(true, (i+1) * 32, 32, 8);
 		}
 	}
 
